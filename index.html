@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Para Genesis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Marcellus&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* VOICE: tierna, elegante, nocturna; pocas palabras, mucho aire.
+   IDEA: un portón coreano (대문) que se abre a una torre-pabellón de noche: una tarjeta que es un edificio.
+   PICTURE: torre moderna coronada con techo de tejas curvas; 9 ventanas que se encienden con palabras en coreano.
+   COLOUR and TYPE: negro violáceo, morado profundo, lavanda como luz; Marcellus (capitales de fachada), Gowun Batang (hangul), Jost.
+   LAYOUT: portón a pantalla completa → título, torre grande al centro, panel de la palabra, carta final. */
+:root{color-scheme:dark;--bg:#0a0710;--deep:#1c0f2e;--plum:#3b1d5e;--vio:#8b5cf6;--lav:#d6c5ff;--glow:#f1e9ff;--ink:#efe9f7;--mute:#a99bbf;--line:#6d4fa3}
+:root[data-theme=light],:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html{background:radial-gradient(120% 80% at 50% 0%,#24123d 0%,var(--bg) 60%) fixed,var(--bg)}
+body{margin:0;background:transparent;color:var(--ink);font:16px/1.6 Jost,system-ui,sans-serif;overflow-x:clip}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--lav);outline-offset:3px}
+.sky{position:fixed;inset:0;pointer-events:none;z-index:0}
+.sky i{position:absolute;width:2px;height:2px;border-radius:50%;background:var(--lav);opacity:.5;animation:tw 4s ease-in-out infinite}
+@keyframes tw{50%{opacity:.1}}
+
+/* Portón */
+.gate{position:fixed;inset:0;z-index:20;display:flex;perspective:1600px}
+.door{flex:1;position:relative;background:linear-gradient(180deg,#22113a,#120a1f);border:1px solid #4a2c74;transition:transform 1.5s cubic-bezier(.6,.05,.2,1),opacity 1.5s;overflow:hidden;cursor:pointer}
+.door.l{transform-origin:left center;border-right:2px solid #000}
+.door.r{transform-origin:right center;border-left:2px solid #000}
+.door svg{position:absolute;inset:0;width:100%;height:100%}
+.gate.open .door.l{transform:rotateY(-105deg);opacity:0}
+.gate.open .door.r{transform:rotateY(105deg);opacity:0}
+.gate.gone{display:none}
+.knob{position:absolute;top:72%;width:46px;height:46px;margin-top:-23px;border-radius:50%;border:2px solid var(--lav);background:radial-gradient(circle at 35% 35%,#b79cf0,#4b2a7c)}
+.l .knob{right:22px}.r .knob{left:22px}
+.gtext{position:fixed;z-index:21;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;transition:opacity .6s;width:min(92vw,560px)}
+.gate.open~.gtext{opacity:0}
+.gtext .ko{font-family:"Gowun Batang",serif;font-size:20px;color:var(--lav)}
+.gtext h1{font:400 clamp(40px,9vw,72px)/1.05 Marcellus,serif;margin:6px 0 10px;letter-spacing:.02em;text-shadow:0 0 30px #8b5cf680}
+.gtext p{margin:0 0 22px;color:var(--mute)}
+.btn{pointer-events:auto;min-height:44px;padding:10px 26px;border-radius:999px;border:1px solid var(--lav);background:#2a1547cc;cursor:pointer;transition:background .2s}
+.btn:hover{background:var(--plum)}
+
+/* Contenido */
+main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:clamp(28px,5vw,60px) max(5vw,16px) 80px;text-align:center}
+.hd .ko{font-family:"Gowun Batang",serif;color:var(--lav);font-size:18px}
+.hd h2{font:400 clamp(34px,6vw,52px)/1.05 Marcellus,serif;margin:4px 0 8px;text-wrap:balance}
+.hd p{color:var(--mute);margin:0 auto;max-width:52ch}
+.stage{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:clamp(20px,4vw,48px);align-items:center;margin-top:26px}
+.tower{width:100%;max-width:520px;justify-self:center}
+.tower svg{width:100%;height:auto;display:block;overflow:visible}
+.ln{fill:none;stroke:var(--lav);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1}
+.drawn .ln{animation:draw 2.6s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.fillin{opacity:0;transition:opacity 1.2s 1.8s}
+.drawn .fillin{opacity:1}
+.win{cursor:pointer}
+.win rect.pane{fill:#140b22;stroke:var(--line);stroke-width:1.4;transition:fill .5s}
+.win .cross{stroke:var(--line);stroke-width:1}
+.win .hal{fill:#c4a6ff;opacity:0;transition:opacity .6s}
+.win:hover rect.pane,.win:focus-visible rect.pane{stroke:var(--glow)}
+.win:focus{outline:none}
+.win.on rect.pane{fill:url(#lit)}
+.win.on .hal{opacity:.16}
+.win.cur rect.pane{stroke:#fff;stroke-width:2.4}
+.roofglow{opacity:0;transition:opacity 1.6s}
+.done .roofglow{opacity:1}
+
+.panel{background:linear-gradient(160deg,#1f1133,#120a1e);border:1px solid #3e2766;border-radius:18px;padding:28px 24px;min-height:300px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;box-shadow:0 20px 60px #0008}
+.panel .hint{color:var(--mute)}
+.panel .big{font:700 clamp(46px,8vw,68px)/1.1 "Gowun Batang",serif;color:var(--glow);text-shadow:0 0 24px #a78bfa90}
+.panel .rom{font-size:14px;color:var(--lav);letter-spacing:.06em}
+.panel .mean{font:400 26px/1.2 Marcellus,serif;margin-top:4px}
+.panel .note{color:var(--mute);max-width:34ch;margin:6px 0 0}
+.pop{animation:pop .5s ease}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}}
+.count{margin-top:14px;font-size:14px;color:var(--mute)}
+.dots{display:flex;gap:6px;justify-content:center;margin-top:8px}
+.dots b{width:10px;height:10px;border-radius:50%;border:1px solid var(--line)}
+.dots b.on{background:var(--lav);border-color:var(--lav)}
+
+.letter{max-width:640px;margin:56px auto 0;padding:clamp(26px,5vw,44px);border-radius:20px;background:linear-gradient(180deg,#26143f,#160c25);border:1px solid #4b2f78;text-align:left;opacity:0;transform:translateY(20px);transition:opacity 1s,transform 1s;pointer-events:none}
+.letter.show{opacity:1;transform:none;pointer-events:auto}
+.letter .ko{font:700 clamp(40px,7vw,56px)/1.1 "Gowun Batang",serif;color:var(--glow);text-align:center;margin:0}
+.letter .sub{text-align:center;color:var(--lav);margin:4px 0 22px;font-size:15px}
+.letter p{margin:0 0 14px;font-size:17px}
+.letter .sig{text-align:right;font-family:Marcellus,serif;font-size:20px;margin-top:20px}
+.again{margin-top:26px}
+.egg{position:absolute;left:18px;bottom:14px;width:46px;opacity:.35;cursor:pointer;background:none;border:0;padding:0;transition:opacity .3s,transform .3s}
+.egg:hover,.egg:focus-visible{opacity:1;transform:translateY(-3px)}
+.egg svg{width:100%;height:auto;display:block}
+.modal{position:fixed;inset:0;z-index:40;display:none;place-items:center;padding:16px;background:#05030acc;backdrop-filter:blur(4px)}
+.modal.show{display:grid}
+.cert{position:relative;max-width:520px;width:100%;padding-top:48px!important;background:#f6f1ff;color:#24133b;border-radius:6px;padding:clamp(24px,5vw,40px);text-align:center;border:10px double #6d4fa3;box-shadow:0 30px 80px #000a;animation:pop .5s ease}
+.cert small{display:block;font-size:13px;color:#6b5a85}
+.cert h3{font:400 clamp(24px,5vw,30px)/1.1 Marcellus,serif;margin:6px 0 14px;letter-spacing:.04em}
+.cert .who{font:400 clamp(34px,7vw,44px)/1.1 Marcellus,serif;color:#4c1d95;margin:4px 0}
+.cert .tit{font:700 20px/1.3 "Gowun Batang",serif;margin:6px 0 12px}
+.cert p{margin:0 0 10px;font-size:15px}
+.cert .foot{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-top:18px;text-align:left}
+.seal{flex:none;width:72px;height:72px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#a78bfa,#5b21b6);color:#fff;display:grid;place-items:center;font:700 22px "Gowun Batang",serif;transform:rotate(-12deg);box-shadow:0 0 0 4px #ede4ff,0 0 0 6px #7c3aed}
+.cert .sg{font:400 22px Marcellus,serif;border-top:1px solid #6b5a85;padding-top:4px;min-width:120px}
+.x{position:absolute;top:6px;right:8px;width:44px;height:44px;border:0;background:none;font-size:26px;color:#4c1d95;cursor:pointer}
+.letter{position:relative}
+.petal{position:fixed;top:-20px;z-index:30;width:12px;height:12px;border-radius:12px 0;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+@media(max-width:760px){.stage{grid-template-columns:minmax(0,1fr)}.panel{min-height:240px}}
+@media(prefers-reduced-motion:reduce){.door,.letter,.gtext{transition:none}.drawn .ln{animation:none;stroke-dashoffset:0}.fillin{transition:none}.sky i{animation:none}.petal{display:none}}
+</style>
+</head>
+<body>
+<div class="sky" id="sky"></div>
+
+<div class="gate" id="gate" role="button" tabindex="0" aria-label="Abrir el portón">
+  <div class="door l"><svg aria-hidden="true"><use href="#lattice-fill"/></svg><span class="knob"></span></div>
+  <div class="door r"><svg aria-hidden="true"><use href="#lattice-fill"/></svg><span class="knob"></span></div>
+</div>
+<div class="gtext">
+  <div class="ko">제네시스에게</div>
+  <h1>Para Genesis</h1>
+  <p>Un pequeño regalo detrás de esta puerta · 문을 열어 주세요</p>
+  <button class="btn" id="openBtn">Abrir la puerta</button>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <pattern id="lat" width="56" height="56" patternUnits="userSpaceOnUse">
+      <rect width="56" height="56" fill="none"/>
+      <path d="M0 28H56M28 0V56M14 14H42V42H14Z" stroke="#4e3180" stroke-width="2" fill="none"/>
+    </pattern>
+    <symbol id="lattice-fill"><rect width="100%" height="100%" fill="url(#lat)"/></symbol>
+  </defs>
+</svg>
+
+<main id="main" aria-hidden="true">
+  <header class="hd">
+    <div class="ko">보라빛 밤의 집</div>
+    <h2>Una torre encendida para ti</h2>
+    <p>Toca cada ventana: cada una guarda una palabra en coreano. Cuando las nueve estén encendidas, la casa te dirá algo.</p>
+  </header>
+
+  <section class="stage">
+    <div class="tower" id="tower">
+      <svg viewBox="0 0 400 540" role="img" aria-label="Torre con techo coreano y nueve ventanas">
+        <defs>
+          <linearGradient id="lit" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3ecff"/><stop offset="1" stop-color="#a77bf5"/></linearGradient>
+          <linearGradient id="body" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1646"/><stop offset="1" stop-color="#150b24"/></linearGradient>
+          <linearGradient id="roofg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3d2068"/><stop offset="1" stop-color="#1b0f2e"/></linearGradient>
+          <radialGradient id="moon"><stop offset="0" stop-color="#f4eeff"/><stop offset=".6" stop-color="#cdb6ff" stop-opacity=".5"/><stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/></radialGradient>
+          <clipPath id="roofclip"><path d="M14 150Q62 184 122 182H278Q338 184 386 150Q332 160 292 112H108Q68 160 14 150Z"/></clipPath>
+          <filter id="blur"><feGaussianBlur stdDeviation="10"/></filter>
+        </defs>
+        <circle cx="336" cy="56" r="46" fill="url(#moon)" class="fillin"/>
+        <circle cx="336" cy="56" r="18" fill="#efe6ff" class="fillin"/>
+        <ellipse cx="200" cy="146" rx="190" ry="44" fill="#a78bfa" filter="url(#blur)" class="roofglow"/>
+        <!-- rellenos -->
+        <g class="fillin">
+          <path d="M14 150Q62 184 122 182H278Q338 184 386 150Q332 160 292 112H108Q68 160 14 150Z" fill="url(#roofg)"/>
+          <g clip-path="url(#roofclip)" stroke="#5b3a8f" stroke-width="1.2">
+            <path id="tiles" d=""/>
+          </g>
+          <rect x="80" y="182" width="240" height="16" fill="#2b174a"/>
+          <rect x="92" y="198" width="216" height="276" fill="url(#body)"/>
+          <rect x="60" y="474" width="280" height="30" fill="#1f1135"/>
+          <rect x="40" y="504" width="320" height="10" fill="#140b22"/>
+        </g>
+        <!-- trazos de plano -->
+        <path class="ln" pathLength="1" d="M14 150Q62 184 122 182H278Q338 184 386 150Q332 160 292 112H108Q68 160 14 150Z"/>
+        <path class="ln" pathLength="1" d="M100 112H300M96 104Q104 112 112 106M304 104Q296 112 288 106"/>
+        <path class="ln" pathLength="1" d="M80 182H320V198H80Z"/>
+        <path class="ln" pathLength="1" d="M92 198V474H308V198"/>
+        <path class="ln" pathLength="1" d="M60 474H340V504H60Z"/>
+        <path class="ln" pathLength="1" d="M20 514H380"/>
+        <path class="ln" pathLength="1" d="M104 198V474M296 198V474M92 296H308M92 382H308"/>
+        <g id="wins"></g>
+      </svg>
+    </div>
+
+    <div>
+      <div class="panel" id="panel" aria-live="polite">
+        <div class="hint">Elige una ventana para empezar</div>
+        <div class="big" aria-hidden="true">창문</div>
+        <div class="rom">CHANGMUN · ventana</div>
+      </div>
+      <div class="count" id="count">0 de 9 ventanas encendidas</div>
+      <div class="dots" id="dots"></div>
+    </div>
+  </section>
+
+  <article class="letter" id="letter" aria-hidden="true">
+    <p class="ko">보라해</p>
+    <p class="sub">borahae · “te morado”: confiar en alguien y desearle lo mejor por mucho, mucho tiempo</p>
+    <p>Genesis:</p>
+    <p>Este pequeño regalo es para ti. Por tu buena energía, por las risas compartidas y por hacer que los días de trabajo se sientan más ligeros.</p>
+    <p>Que lo que viene para ti se construya como la mejor arquitectura: con bases firmes, ventanas grandes para que entre mucha luz y, por supuesto, un toque de morado.</p>
+    <p>화이팅! Tú puedes con todo.</p>
+    <p class="sig">— Isai</p>
+    <button class="egg" id="egg" aria-label="Un edificio pequeño de Lima">
+      <svg viewBox="0 0 60 72" aria-hidden="true"><rect x="6" y="10" width="48" height="58" fill="#2b174a" stroke="#c4a6ff" stroke-width="1.5"/><path d="M3 10H57M10 6H50" stroke="#c4a6ff" stroke-width="1.5"/><rect x="13" y="20" width="34" height="16" fill="#4a2c74" stroke="#c4a6ff"/><path d="M19.8 20V36M26.6 20V36M33.4 20V36M40.2 20V36M13 28H47" stroke="#c4a6ff" stroke-width=".8"/><path d="M11 36H49L46 40H14Z" fill="#c4a6ff"/><rect x="24" y="48" width="12" height="20" fill="#d6c5ff"/><rect x="12" y="48" width="8" height="10" fill="#4a2c74" stroke="#c4a6ff" stroke-width=".8"/><rect x="40" y="48" width="8" height="10" fill="#4a2c74" stroke="#c4a6ff" stroke-width=".8"/><text x="30" y="17" text-anchor="middle" font-size="5" fill="#f1e9ff" font-family="Jost,sans-serif">AZÁNGARO</text></svg>
+    </button>
+    <div style="text-align:center"><button class="btn again" id="again">Cerrar la puerta y volver a empezar</button></div>
+  </article>
+</main>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="certT">
+  <div class="cert">
+    <button class="x" id="closeCert" aria-label="Cerrar">×</button>
+    <small>República Independiente de Jr. Azángaro · Cercado de Lima</small>
+    <h3 id="certT">Certificado oficial</h3>
+    <p>Se otorga a</p>
+    <div class="who">Genesis</div>
+    <div class="tit">el título de Mejor Colega del Año · 최고의 동료</div>
+    <p>con mención honrosa en buen gusto arquitectónico y amor incondicional por el morado.</p>
+    <p>Trámite express, sin colas y con sello 100% original. Garantía de autenticidad: palabra de honor.</p>
+    <div class="foot"><div class="sg">Isai<small>Firma del tramitador</small></div><div class="seal">보라</div></div>
+  </div>
+</div>
+
+
+<script>
+{
+const words=[
+ {k:'행복',r:'haengbok',m:'Felicidad',n:'La que te deseo en cada piso de tu vida.'},
+ {k:'꿈',r:'kkum',m:'Sueño',n:'Los planos de todo lo que todavía vas a construir.'},
+ {k:'빛',r:'bit',m:'Luz',n:'Lo que traes a cualquier espacio, como un buen ventanal.'},
+ {k:'별',r:'byeol',m:'Estrella',n:'Para las noches largas: siempre hay una encendida.'},
+ {k:'용기',r:'yonggi',m:'Valentía',n:'Toda gran obra empieza con alguien que se atreve.'},
+ {k:'미소',r:'miso',m:'Sonrisa',n:'La tuya hace los días más fáciles.'},
+ {k:'동료',r:'dongnyo',m:'Colega',n:'Y de las buenas, de las que se agradecen.'},
+ {k:'고마워요',r:'gomawoyo',m:'Gracias',n:'Por todo lo que compartes sin hacer ruido.'},
+ {k:'화이팅',r:'hwaiting',m:'¡Ánimo! ¡Tú puedes!',n:'Lo que se grita para apoyar a alguien con todo.'}
+];
+const $=s=>document.querySelector(s);
+const gate=$('#gate'),main=$('#main'),tower=$('#tower'),panel=$('#panel'),count=$('#count'),dots=$('#dots'),letter=$('#letter');
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const lit=new Set();
+
+// estrellas
+$('#sky').innerHTML=Array.from({length:70},()=>`<i style="left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${(Math.random()*4).toFixed(2)}s;opacity:${(.2+Math.random()*.6).toFixed(2)}"></i>`).join('');
+
+// tejas del techo
+let t='';for(let x=20;x<=380;x+=12)t+=`M${x} 100V190`;$('#tiles').setAttribute('d',t);
+
+// ventanas 3x3
+const xs=[116,175,234],ys=[216,304,390],W=50,H=62;
+$('#wins').innerHTML=words.map((w,i)=>{
+  const x=xs[i%3],y=ys[Math.floor(i/3)];
+  return `<g class="win" data-i="${i}" tabindex="0" role="button" aria-label="Ventana ${i+1}">
+   <rect class="hal" x="${x-8}" y="${y-8}" width="${W+16}" height="${H+16}" rx="6"/>
+   <rect class="pane" x="${x}" y="${y}" width="${W}" height="${H}" rx="2"/>
+   <path class="cross" d="M${x+W/2} ${y}V${y+H}M${x} ${y+H/2}H${x+W}"/></g>`}).join('');
+dots.innerHTML=words.map(()=>'<b></b>').join('');
+
+function openGate(){
+  if(gate.classList.contains('open'))return;
+  gate.classList.add('open');
+  main.removeAttribute('aria-hidden');
+  setTimeout(()=>{gate.classList.add('gone');tower.classList.add('drawn')},reduce?0:1300);
+}
+gate.addEventListener('click',openGate);
+gate.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openGate()}});
+$('#openBtn').addEventListener('click',openGate);
+
+function show(i){
+  const w=words[i];
+  document.querySelectorAll('.win').forEach(g=>g.classList.toggle('cur',+g.dataset.i===i));
+  const g=document.querySelector(`.win[data-i="${i}"]`);g.classList.add('on');
+  lit.add(i);
+  panel.innerHTML=`<div class="pop"><div class="big">${w.k}</div><div class="rom">${w.r.toUpperCase()}</div><div class="mean">${w.m}</div><p class="note">${w.n}</p></div>`;
+  count.textContent=`${lit.size} de 9 ventanas encendidas`;
+  [...dots.children].forEach((d,j)=>d.classList.toggle('on',lit.has(j)));
+  if(lit.size===9&&!tower.classList.contains('done'))finish();
+}
+$('#wins').addEventListener('click',e=>{const g=e.target.closest('.win');if(g)show(+g.dataset.i)});
+$('#wins').addEventListener('keydown',e=>{const g=e.target.closest('.win');if(g&&(e.key==='Enter'||e.key===' ')){e.preventDefault();show(+g.dataset.i)}});
+
+function finish(){
+  tower.classList.add('done');
+  count.textContent='¡Las 9 encendidas! La casa tiene un mensaje para ti ↓';
+  petals();
+  setTimeout(()=>{letter.classList.add('show');letter.removeAttribute('aria-hidden');letter.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'})},900);
+}
+function petals(){
+  if(reduce)return;
+  const cols=['#c4a6ff','#8b5cf6','#e9ddff','#6d28d9','#f0abfc'];
+  for(let k=0;k<60;k++){
+    const p=document.createElement('span');p.className='petal';
+    p.style.left=Math.random()*100+'vw';p.style.background=cols[k%cols.length];
+    p.style.animationDuration=(3+Math.random()*3)+'s';p.style.animationDelay=(Math.random()*1.5)+'s';
+    const s=8+Math.random()*10;p.style.width=p.style.height=s+'px';
+    document.body.appendChild(p);setTimeout(()=>p.remove(),8000);
+  }
+}
+const modal=$('#modal');
+$('#egg').addEventListener('click',()=>{modal.classList.add('show');$('#closeCert').focus();petals()});
+const closeCert=()=>{modal.classList.remove('show');$('#egg').focus()};
+$('#closeCert').addEventListener('click',closeCert);
+modal.addEventListener('click',e=>{if(e.target===modal)closeCert()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('show'))closeCert()});
+$('#again').addEventListener('click',()=>{
+  lit.clear();tower.classList.remove('done','drawn');
+  document.querySelectorAll('.win').forEach(g=>g.classList.remove('on','cur'));
+  [...dots.children].forEach(d=>d.classList.remove('on'));
+  count.textContent='0 de 9 ventanas encendidas';
+  panel.innerHTML='<div class="hint">Elige una ventana para empezar</div><div class="big" aria-hidden="true">창문</div><div class="rom">CHANGMUN · ventana</div>';
+  letter.classList.remove('show');letter.setAttribute('aria-hidden','true');
+  window.scrollTo(0,0);
+  gate.classList.remove('gone');void gate.offsetWidth;gate.classList.remove('open');
+});
+}
+</script>
+</body>
+</html>
